@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Node.js HTML CSS Server</title>
+</head>
+
+<body>
+  <h1>Hello from Node.js Server!</h1>
+
+  <form id="dataForm">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" required>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Task List</h2>
+  <ul id="taskList"></ul>
+
+  <script>
+    const taskForm = document.getElementById('dataForm');
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const taskList = document.getElementById('taskList');
+
+    // Function to fetch and display tasks on page load
+    async function fetchAndDisplayTasks() {
+      try {
+        const response = await fetch('/api/tasks');
+        const tasks = await response.json();
+
+        taskList.innerHTML = tasks.map(task => `<li>${task.title}: ${task.description}</li>`).join('');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Event listener for form submission
+    taskForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const title = titleInput.value;
+      const description = descriptionInput.value;
+
+      // Send POST request to save a new task
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title, description }),
+      });
+
+      // Fetch and display tasks after submitting the form
+      fetchAndDisplayTasks();
+
+      // Clear the form inputs after submission
+      titleInput.value = '';
+      descriptionInput.value = '';
+    });
+
+    // Fetch and display tasks on page load
+    fetchAndDisplayTasks();
+  </script>
+</body>
+
+</html>
